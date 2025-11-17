@@ -24,7 +24,7 @@ body::before {
     z-index: -1;
     opacity: 0.98;
     filter: hue-rotate(0deg);
-    animation: tilt 8s ease-in-out infinite, hueShift 30s linear infinite;
+    animation: tilt 8s ease-in-out infinite, hueShift var(--hue-duration) linear infinite;
 }
 
 :root {
@@ -32,11 +32,15 @@ body::before {
     --card: #ffffff;
     --accent: #2563eb;
     --text: #ffffff;
-    --hue-duration: 30s;
+    --hue-duration: 20s;
     /* helpers: adjust these to match your background image and desired offset */
     --bg-size: 95vw;       /* width of background image (can be % or vw) */
     --bg-aspect: 0.5625;   /* image height / width (default 16:9 = 9/16 = 0.5625) */
     --header-offset-extra: 2vh; /* extra spacing to push header further down */
+        /* text glow settings (strengthened) */
+        --text-glow-color: 255,50,50; /* rgb of the blue glow (Tailwind blue-500) */
+        --text-glow-alpha: 0.90;      /* glow opacity (was 0.99) */
+        --text-glow-blur: 36px;       /* blur radius (was 36px) */
 }
 
 html{
@@ -151,7 +155,43 @@ a#synthesis:focus{
     font-weight: 700;
 }
 
+/* Global blue blurred layer under text: applies to common text elements */
+/* Uses rgba with the rgb components so we can change alpha separately */
+body,
+h1,h2,h3,h4,h5,h6,
+p,a,span,strong,em,li,button,label,blockquote,code,pre {
+    /* stronger multilayer text glow */
+    text-shadow:
+        0 8px 16px rgba(var(--text-glow-color), calc(var(--text-glow-alpha) * 1.0)),
+        0 0 36px rgba(var(--text-glow-color), calc(var(--text-glow-alpha) * 0.6)),
+        0 0 72px rgba(var(--text-glow-color), calc(var(--text-glow-alpha) * 0.35));
+}
+
 @keyframes hueShift {
-    from { filter: hue-rotate(0deg); }
-    to   { filter: hue-rotate(360deg); }
+  0% { filter: hue-rotate(20deg); } /* 赤 */
+/*  16.66% { filter: hue-rotate(270deg); }  紫 (赤から-90度、または+270度) 
+  33.32% { filter: hue-rotate(240deg); }  青 (赤から-120度、または+240度) 
+  49.98% { filter: hue-rotate(180deg); }  水色 (赤から-180度、または+180度) 
+  66.64% { filter: hue-rotate(60deg); }  黄色 (赤から+60度) 
+  83.33% { filter: hue-rotate(0deg); }  赤 (元の色) */
+  50% { filter: hue-rotate(-70deg); }
+  100% { filter: hue-rotate(20deg); }
+}
+/* Header-specific glow (uses data-glow attribute set by JS) */
+header { position: relative; }
+.has-glow { position: relative; z-index: 1; }
+.has-glow::before{
+    content: attr(data-glow);
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+    z-index: 0;
+    pointer-events: none;
+    color: rgba(var(--text-glow-color), var(--text-glow-alpha, 0.6));
+    opacity: 0.95;
+    filter: blur(var(--text-glow-blur, 18px));
+    mix-blend-mode: screen;
+    white-space: pre-wrap;
+    display: block;
+    transform-origin: left top;
+    animation: hueShift var(--hue-duration) linear infinite;
 }
