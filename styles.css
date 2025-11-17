@@ -16,7 +16,8 @@ body::before {
     background-image: url("source/background.png");
     background-repeat: no-repeat;
     background-position: center center;
-    background-size: 95%;
+    /* use vw-based size so we can calculate the image height in CSS */
+    background-size: var(--bg-size, 95vw);
     transform-origin: center center;
     will-change: transform, filter;
     pointer-events: none;
@@ -32,6 +33,10 @@ body::before {
     --accent: #2563eb;
     --text: #ffffff;
     --hue-duration: 30s;
+    /* helpers: adjust these to match your background image and desired offset */
+    --bg-size: 95vw;       /* width of background image (can be % or vw) */
+    --bg-aspect: 0.5625;   /* image height / width (default 16:9 = 9/16 = 0.5625) */
+    --header-offset-extra: 2vh; /* extra spacing to push header further down */
 }
 
 html{
@@ -72,7 +77,11 @@ body{
 .container {
     max-width: 720px;
     margin: 1vh auto;
-    padding: 2rem;
+    /* push the content down so it sits below the top edge of the background image */
+    padding-top: calc((100vh - (var(--bg-size) * var(--bg-aspect))) / 2 + var(--header-offset-extra));
+    padding-right: 2rem;
+    padding-left: 2rem;
+    padding-bottom: 2rem;
     text-align: center;
 }
 
