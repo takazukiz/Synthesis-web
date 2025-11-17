@@ -4,20 +4,21 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!el) return;
 
   const base = 'Synthesis';
-  const suffixes = ['.accelaretion()','.impetus()','.genesis()','.oracle()', '.dimension()'];
-
-  function pickRandomSuffix() {
-    return suffixes[Math.floor(Math.random() * suffixes.length)];
-  }
-
-  function randomSeconds(min = 10, max = 20) {
-    // inclusive integer seconds between min and max
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
+  const suffixes = ['.genesis()','.impetus()','.acceleration()','.recursion()','.oracle()','.metacognition()','.irrationality()','.transcendence()','.dimension()','.diffraction()','.chroma()', '.terminus()'];
 
   let timeoutId = null;
   let intervalId = null;
   let endTime = 0;
+  
+  function pickRandomSuffix() {
+    return suffixes[Math.floor(Math.random() * suffixes.length)];
+  }
+
+  function randomSeconds(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  
 
   function updateCountdown() {
     if (!countdownEl) return;
@@ -28,6 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const intStr = intPart.toString().padStart(2, '0');
     const remainingSec = `${intStr}.${frac}`;
     countdownEl.textContent = `Next phase in: ${remainingSec}s`;
+    // keep header glow copy in sync with updated countdown text
+    if (countdownEl.dataset) countdownEl.dataset.glow = countdownEl.textContent;
     if (remainingMs <= 0 && intervalId) {
       clearInterval(intervalId);
       intervalId = null;
@@ -40,7 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const suffix = pickRandomSuffix();
     el.textContent = base + suffix;
-    const seconds = randomSeconds(10, 30);
+    // keep header glow copy in sync when the visible text changes
+    try { el.dataset.glow = el.textContent; } catch(e) {}
+    const seconds = randomSeconds(5, 13);
     endTime = Date.now() + seconds * 1000;
 
     // start countdown updates (every 100ms for smooth .00 display)
@@ -103,4 +108,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // run intro in parallel
   runIntroSequence();
+
+  // header glow: set data-glow on header children so CSS ::before can show a colored blurred copy
+  (function initHeaderGlow(){
+    const header = document.querySelector('header');
+    if(!header) return;
+    const targets = header.querySelectorAll('#synthesis, #countdown');
+    targets.forEach(el => {
+      el.classList.add('has-glow');
+      el.dataset.glow = el.textContent;
+    });
+  })();
 });
